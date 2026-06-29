@@ -3,8 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2048</title>
+    <title>2048 - Hand Drawn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Patrick+Hand&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #fdfbf7;
+            --fg: #2d2d2d;
+            --muted: #e5e0d8;
+            --accent: #ff4d4d;
+            --border: #2d2d2d;
+            --blue: #2d5da1;
+            --postit: #fff9c4;
+            --wobbly: 255px 15px 225px 15px / 15px 225px 15px 255px;
+            --wobbly-md: 95px 25px 105px 25px / 25px 105px 25px 95px;
+            --wobbly-sm: 45px 15px 55px 12px / 12px 55px 15px 45px;
+            --wobbly-cell: 35px 8px 42px 10px / 10px 42px 8px 35px;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,125 +29,240 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Patrick Hand', cursive;
+            background-color: var(--bg);
+            background-image: radial-gradient(var(--muted) 1px, transparent 1px);
+            background-size: 24px 24px;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            color: var(--fg);
         }
 
         .container {
             text-align: center;
+            position: relative;
         }
 
         h1 {
+            font-family: 'Kalam', cursive;
             font-size: 72px;
-            color: #fff;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-weight: 700;
+            color: var(--fg);
             margin-bottom: 20px;
+            transform: rotate(-2deg);
+            position: relative;
+            display: inline-block;
+        }
+
+        h1::after {
+            content: '!';
+            color: var(--accent);
+            display: inline-block;
+            animation: wiggle 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes wiggle {
+            from { transform: rotate(-5deg); }
+            to { transform: rotate(5deg); }
         }
 
         .header {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             margin-bottom: 20px;
-            gap: 20px;
+            gap: 15px;
+            flex-wrap: wrap;
         }
 
         .scores {
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
 
         .score-box {
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-            border-radius: 8px;
-            padding: 10px 25px;
-            color: #fff;
+            background: #fff;
+            border: 3px solid var(--border);
+            border-radius: var(--wobbly-sm);
+            padding: 8px 20px;
+            box-shadow: 4px 4px 0px 0px var(--border);
+            transform: rotate(1deg);
+            transition: transform 0.1s;
+        }
+
+        .score-box:nth-child(2) {
+            transform: rotate(-1deg);
+            background: var(--postit);
+        }
+
+        .score-box:hover {
+            transform: rotate(0deg) scale(1.02);
         }
 
         .score-box .label {
-            font-size: 12px;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 14px;
             text-transform: uppercase;
-            opacity: 0.8;
+            color: var(--fg);
+            opacity: 0.7;
         }
 
         .score-box .value {
+            font-family: 'Kalam', cursive;
             font-size: 28px;
-            font-weight: bold;
+            font-weight: 700;
         }
 
         .new-game-btn {
-            background: #f65e3b;
-            color: #fff;
-            border: none;
-            padding: 15px 30px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 8px;
+            background: #fff;
+            color: var(--fg);
+            border: 3px solid var(--border);
+            padding: 12px 28px;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 20px;
+            border-radius: var(--wobbly-sm);
             cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.1s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 4px 4px 0px 0px var(--border);
+            transition: all 0.1s;
+            transform: rotate(-1deg);
         }
 
         .new-game-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 2px 2px 0px 0px var(--border);
+            transform: rotate(0deg) translate(2px, 2px);
         }
 
         .new-game-btn:active {
-            transform: translateY(0);
+            box-shadow: none;
+            transform: translate(4px, 4px);
         }
 
         .game-container {
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
+            background: #fff;
+            border: 3px solid var(--border);
+            border-radius: var(--wobbly-md);
             padding: 15px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            box-shadow: 8px 8px 0px 0px var(--border);
+            position: relative;
+            display: inline-block;
+        }
+
+        .tape {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%) rotate(2deg);
+            width: 80px;
+            height: 24px;
+            background: rgba(200, 200, 180, 0.6);
+            border-radius: 2px;
         }
 
         .grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            background: rgba(0,0,0,0.1);
-            border-radius: 12px;
+            gap: 10px;
+            background: var(--muted);
+            border: 2px dashed var(--border);
+            border-radius: var(--wobbly-sm);
             padding: 12px;
         }
 
         .cell {
-            width: 100px;
-            height: 100px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 8px;
+            width: 85px;
+            height: 85px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: var(--wobbly-cell);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 36px;
-            font-weight: bold;
-            color: #fff;
-            transition: transform 0.15s ease-out;
+            font-family: 'Kalam', cursive;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--fg);
+            transition: transform 0.1s;
             position: relative;
         }
 
-        .cell[data-value="2"] { background: #eee4da; color: #776e65; }
-        .cell[data-value="4"] { background: #ede0c8; color: #776e65; }
-        .cell[data-value="8"] { background: #f2b179; color: #fff; }
-        .cell[data-value="16"] { background: #f59563; color: #fff; }
-        .cell[data-value="32"] { background: #f67c5f; color: #fff; }
-        .cell[data-value="64"] { background: #f65e3b; color: #fff; }
-        .cell[data-value="128"] { background: #edcf72; color: #fff; font-size: 32px; }
-        .cell[data-value="256"] { background: #edcc61; color: #fff; font-size: 32px; }
-        .cell[data-value="512"] { background: #edc850; color: #fff; font-size: 32px; }
-        .cell[data-value="1024"] { background: #edc53f; color: #fff; font-size: 26px; }
-        .cell[data-value="2048"] { background: #edc22e; color: #fff; font-size: 26px; }
-        .cell[data-value="4096"] { background: #3c3a32; color: #fff; font-size: 26px; }
-        .cell[data-value="8192"] { background: #3c3a32; color: #fff; font-size: 26px; }
+        .cell:empty {
+            border-style: dashed;
+            border-color: rgba(45, 45, 45, 0.3);
+        }
+
+        .cell[data-value="2"] {
+            background: #fff;
+            box-shadow: 3px 3px 0px 0px rgba(45, 45, 45, 0.2);
+        }
+        .cell[data-value="4"] {
+            background: var(--muted);
+            box-shadow: 3px 3px 0px 0px rgba(45, 45, 45, 0.25);
+        }
+        .cell[data-value="8"] {
+            background: #ffd699;
+            box-shadow: 3px 3px 0px 0px rgba(45, 45, 45, 0.3);
+        }
+        .cell[data-value="16"] {
+            background: #ffb366;
+            box-shadow: 4px 4px 0px 0px rgba(45, 45, 45, 0.35);
+        }
+        .cell[data-value="32"] {
+            background: #ff9966;
+            color: #fff;
+            box-shadow: 4px 4px 0px 0px var(--border);
+        }
+        .cell[data-value="64"] {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 4px 4px 0px 0px var(--border);
+            transform: rotate(-1deg);
+        }
+        .cell[data-value="128"] {
+            background: var(--postit);
+            font-size: 28px;
+            box-shadow: 4px 4px 0px 0px var(--border);
+            transform: rotate(1deg);
+        }
+        .cell[data-value="256"] {
+            background: #ffe066;
+            font-size: 28px;
+            box-shadow: 5px 5px 0px 0px var(--border);
+        }
+        .cell[data-value="512"] {
+            background: #ffd633;
+            font-size: 28px;
+            box-shadow: 5px 5px 0px 0px var(--border);
+            transform: rotate(-1deg);
+        }
+        .cell[data-value="1024"] {
+            background: #ffcc00;
+            font-size: 22px;
+            box-shadow: 6px 6px 0px 0px var(--border);
+        }
+        .cell[data-value="2048"] {
+            background: var(--blue);
+            color: #fff;
+            font-size: 22px;
+            box-shadow: 6px 6px 0px 0px var(--border);
+            animation: winner 0.5s ease-in-out infinite alternate;
+        }
+        .cell[data-value="4096"],
+        .cell[data-value="8192"] {
+            background: var(--fg);
+            color: #fff;
+            font-size: 20px;
+            box-shadow: 6px 6px 0px 0px var(--accent);
+        }
+
+        @keyframes winner {
+            from { transform: rotate(-2deg) scale(1); }
+            to { transform: rotate(2deg) scale(1.02); }
+        }
 
         .cell.new {
             animation: appear 0.2s ease-out;
@@ -141,14 +273,14 @@
         }
 
         @keyframes appear {
-            0% { transform: scale(0); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
+            0% { transform: scale(0) rotate(10deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
         }
 
         @keyframes pop {
             0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
+            50% { transform: scale(1.15) rotate(-3deg); }
+            100% { transform: scale(1) rotate(0deg); }
         }
 
         .message {
@@ -157,7 +289,9 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(253, 251, 247, 0.95);
+            background-image: radial-gradient(var(--muted) 1px, transparent 1px);
+            background-size: 24px 24px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -173,48 +307,143 @@
             pointer-events: auto;
         }
 
+        .message-box {
+            background: #fff;
+            border: 3px solid var(--border);
+            border-radius: var(--wobbly-md);
+            padding: 40px 50px;
+            box-shadow: 8px 8px 0px 0px var(--border);
+            text-align: center;
+            transform: rotate(-1deg);
+            position: relative;
+        }
+
+        .message-box .tack {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            box-shadow: 2px 2px 0px 0px var(--border);
+        }
+
         .message h2 {
+            font-family: 'Kalam', cursive;
             font-size: 48px;
-            color: #fff;
-            margin-bottom: 20px;
+            font-weight: 700;
+            color: var(--fg);
+            margin-bottom: 10px;
+        }
+
+        .message.show .message-box h2.win {
+            color: var(--blue);
         }
 
         .message p {
-            color: rgba(255,255,255,0.8);
-            margin-bottom: 30px;
-            font-size: 18px;
+            font-family: 'Patrick Hand', cursive;
+            color: var(--fg);
+            margin-bottom: 25px;
+            font-size: 20px;
+            opacity: 0.8;
         }
 
         .instructions {
-            margin-top: 20px;
-            color: rgba(255,255,255,0.7);
-            font-size: 14px;
+            margin-top: 25px;
+            color: var(--fg);
+            font-size: 16px;
+            opacity: 0.7;
         }
 
         .instructions kbd {
-            background: rgba(255,255,255,0.2);
-            padding: 4px 8px;
-            border-radius: 4px;
+            background: #fff;
+            border: 2px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 8px 4px 10px 5px / 5px 10px 4px 8px;
             margin: 0 2px;
+            font-family: 'Kalam', cursive;
+            font-weight: 700;
+            box-shadow: 2px 2px 0px 0px var(--border);
+            display: inline-block;
+        }
+
+        .doodle {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .doodle-arrow {
+            top: 20px;
+            right: -80px;
+            width: 60px;
+            height: 40px;
+        }
+
+        .doodle-star {
+            bottom: 60px;
+            left: -50px;
+            font-size: 32px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) rotate(-10deg); }
+            50% { transform: translateY(-10px) rotate(10deg); }
         }
 
         @media (max-width: 500px) {
             h1 { font-size: 48px; }
-            .cell { width: 70px; height: 70px; font-size: 24px; }
+            .cell {
+                width: 65px;
+                height: 65px;
+                font-size: 24px;
+            }
             .cell[data-value="128"],
             .cell[data-value="256"],
-            .cell[data-value="512"] { font-size: 22px; }
+            .cell[data-value="512"] { font-size: 20px; }
             .cell[data-value="1024"],
             .cell[data-value="2048"],
             .cell[data-value="4096"],
-            .cell[data-value="8192"] { font-size: 18px; }
-            .header { flex-direction: column; }
+            .cell[data-value="8192"] { font-size: 16px; }
+            .header {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .game-container {
+                box-shadow: 6px 6px 0px 0px var(--border);
+            }
+            .grid {
+                gap: 8px;
+                padding: 10px;
+            }
+            .score-box {
+                padding: 6px 16px;
+            }
+            .score-box .value {
+                font-size: 24px;
+            }
+            .doodle {
+                display: none;
+            }
+            .instructions kbd {
+                padding: 3px 8px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>2048</h1>
+
+        <svg class="doodle doodle-arrow" viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 20 Q30 5, 50 20" stroke="#2d2d2d" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
+            <path d="M45 15 L52 20 L45 25" stroke="#2d2d2d" stroke-width="2" fill="none"/>
+        </svg>
+        <div class="doodle doodle-star">✨</div>
+
         <div class="header">
             <div class="scores">
                 <div class="score-box">
@@ -229,17 +458,21 @@
             <button class="new-game-btn" onclick="newGame()">New Game</button>
         </div>
         <div class="game-container">
+            <div class="tape"></div>
             <div class="grid" id="grid"></div>
         </div>
         <p class="instructions">
-            Use <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> to move tiles
+            Use <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> to move
         </p>
     </div>
 
     <div class="message" id="message">
-        <h2 id="message-title">Game Over!</h2>
-        <p id="message-text">No more moves available</p>
-        <button class="new-game-btn" onclick="newGame()">Try Again</button>
+        <div class="message-box">
+            <div class="tack"></div>
+            <h2 id="message-title">Game Over!</h2>
+            <p id="message-text">No more moves available</p>
+            <button class="new-game-btn" onclick="newGame()">Try Again</button>
+        </div>
     </div>
 
     <script>
@@ -331,7 +564,7 @@
         function move(direction) {
             if (gameOver) return;
 
-            const rotations = {left: 0, up: 1, right: 2, down: 3};
+            const rotations = {left: 0, up: 3, right: 2, down: 1};
             const rot = rotations[direction];
 
             rotateGrid(rot);
@@ -370,11 +603,14 @@
                 if (!canMove()) {
                     gameOver = true;
                     setTimeout(() => {
+                        const titleEl = document.getElementById('message-title');
                         if (hasWon()) {
-                            document.getElementById('message-title').textContent = 'You Win!';
+                            titleEl.textContent = 'You Win!';
+                            titleEl.classList.add('win');
                             document.getElementById('message-text').textContent = 'You reached 2048!';
                         } else {
-                            document.getElementById('message-title').textContent = 'Game Over!';
+                            titleEl.textContent = 'Game Over!';
+                            titleEl.classList.remove('win');
                             document.getElementById('message-text').textContent = 'No more moves available';
                         }
                         document.getElementById('message').classList.add('show');
